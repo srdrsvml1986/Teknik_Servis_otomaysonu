@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase';
-import { Customer, ServiceRecord, ServiceQuery, AuditLog, User } from '../types';
+import { Customer, ServiceRecord, ServiceQuery, AuditLog, User, Profile } from '../types';
 
 export const customerApi = {
   async getAll(): Promise<Customer[]> {
@@ -184,3 +184,52 @@ export const auditApi = {
   },
 };
 
+export const profileApi = {
+  async getProfile(): Promise<Profile | null> {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .single();
+    
+    if (error) {
+      if (error.code === 'PGRST116') {
+        // Profil bulunamadı, yeni profil oluştur
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const newProfile = await this.createProfile({
+            id: user.id,
+            first_name: '',
+            last_name: '',
+            phone: null,
+            address: null,
+          });
+          return newProfile;
+        }
+      }
+      throw error;
+    }
+    return data;
+  },
+
+  async createProfile(profile: Omit<Profile, 'created_at' | 'updated_at'>): Promise<Profile> {
+    const { data, error } = await supabase
+      .from('profiles')
+      .insert(profile)
+      .select()
+      .single();
+    
+    if (error) throw error;
+    return data;
+  },
+
+  async updateProfile(profile: Partial<Omit<Profile, 'id' | 'created_at' | 'updated_at'>>): Promise<Profile> {
+    const { data, error } = await supabase
+      .from('profiles')
+      .update(profile)
+      .select()
+      .single();
+    
+    if (error) throw error;
+    return data;
+  },
+};

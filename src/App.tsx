@@ -9,6 +9,7 @@ import { ServiceManagement } from './components/ServiceManagement';
 import { UserManagement } from './components/UserManagement';
 import { AuditLogs } from './components/AuditLogs';
 import { Reports } from './components/Reports';
+import { ProfilePage } from './components/Profile';
 import { ProtectedRoute } from './components/ProtectedRoute';
 
 function App() {
@@ -23,6 +24,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/profile" 
+            element={
+              <ProtectedRoute>
+                <ProfilePage />
               </ProtectedRoute>
             } 
           />
