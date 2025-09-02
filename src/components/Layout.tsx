@@ -35,13 +35,7 @@ export const Layout: React.FC = () => {
                 <Link to="/" className="flex items-center space-x-2">
                   <Settings className="h-8 w-8 text-blue-600" />
                   <div className="flex flex-col">
-                    <span className="text-xl font-bold text-gray-900">Saysan İnşaat</span>
-                    <div className="flex items-center space-x-4 text-xs text-gray-600">
-                      <a href="tel:05323491850" className="hover:text-blue-600 transition-colors">
-                        0532 349 18 50
-                      </a>
-                      <span>Osmaniye İli Sanayi Sitesi</span>
-                    </div>
+                    <span className="text-xl font-bold text-gray-900">Saysan İnşaat</span>                   
                   </div>
                 </Link>
               </div>
