@@ -141,13 +141,6 @@ export const Dashboard: React.FC = () => {
         <div className="p-6 border-b border-gray-100">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold text-gray-900">Son Servis Kayıtları</h2>
-            <button
-              onClick={() => window.location.href = '/services'}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center space-x-2"
-            >
-              <Plus className="h-4 w-4" />
-              <span>Yeni Servis</span>
-            </button>
           </div>
         </div>
         
