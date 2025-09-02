@@ -82,7 +82,7 @@ export const Layout: React.FC = () => {
             <div className="flex items-center space-x-8">
               <Link to="/" className="flex items-center space-x-2">
                 <Settings className="h-8 w-8 text-blue-600" />
-                <span className="text-xl font-bold text-gray-900">Saysan İnşaat Ve Hırdavat</span>
+                <span className="text-xl font-bold text-gray-900">Saysan İnşaat</span>
               </Link>
               <div className="flex items-center space-x-4">
                 <Link
