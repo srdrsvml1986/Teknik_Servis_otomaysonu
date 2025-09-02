@@ -53,7 +53,7 @@ export const Layout: React.FC = () => {
                   <Home className="h-4 w-4 inline mr-2" />
                   Servis Takibi
                 </Link>
-                {user && (
+                
                   <Link
                     to="/dashboard"
                     className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors flex items-center space-x-2"
@@ -61,7 +61,7 @@ export const Layout: React.FC = () => {
                     <Settings className="h-4 w-4" />
                     <span>Yönetim Paneli</span>
                   </Link>
-                )}
+                 
               </div>
             </div>
           </div>
