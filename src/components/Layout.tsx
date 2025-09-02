@@ -99,15 +99,7 @@ export const Layout: React.FC = () => {
             {/* Mobile menu */}
             {showMobileMenu && (
               <div className="md:hidden border-t border-gray-200 py-4 space-y-2">
-                <Link
-                  to="/"
-                  className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
-                    isActive('/') 
-                      ? 'bg-blue-100 text-blue-700' 
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                  }`}
-                >
-                  <Home className="h-4 w-4 inline mr-2" />
+                {user && (
                   Ana Sayfa
                 </Link>
                 
@@ -185,9 +177,20 @@ export const Layout: React.FC = () => {
                 <span className="text-lg font-bold text-gray-900 sm:hidden">Saysan</span>
               </Link>
               
-              {/* Dashboard Navigation - Show when user is logged in and not on home page */}
-              {user && location.pathname !== '/' && (
+              {/* Dashboard Navigation - Always show when user is logged in */}
+              {user && (
                 <div className="hidden lg:flex items-center space-x-4">
+                  <Link
+                    to="/dashboard"
+                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                      isActive('/dashboard') 
+                        ? 'bg-blue-100 text-blue-700' 
+                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                    }`}
+                  >
+                    <Home className="h-4 w-4 inline mr-2" />
+                    Dashboard
+                  </Link>
                   <Link
                     to="/customers"
                     className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
@@ -251,15 +254,13 @@ export const Layout: React.FC = () => {
               )}
             </div>
             <div className="hidden md:flex items-center space-x-4">
-              {user && isActive('/') && (
-                <Link
-                  to="/dashboard"
-                  className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors flex items-center space-x-2"
-                >
-                  <Settings className="h-4 w-4" />
-                  <span className="hidden lg:inline">Panel</span>
-                </Link>
-              )}
+              <Link
+                to="/dashboard"
+                className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors flex items-center space-x-2"
+              >
+                <Settings className="h-4 w-4" />
+                <span className="hidden lg:inline">Panel</span>
+              </Link>
               
            
               <div className="relative">
@@ -274,6 +275,17 @@ export const Layout: React.FC = () => {
                 
                 {showProfileDropdown && (
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                    <Link
+                      to="/dashboard"
+                      className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
+                        isActive('/dashboard') 
+                          ? 'bg-blue-100 text-blue-700' 
+                          : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                      }`}
+                    >
+                      <Home className="h-4 w-4 inline mr-2" />
+                      Dashboard
+                    </Link>
                     <Link
                       to="/profile"
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors w-full text-left"
@@ -292,6 +304,14 @@ export const Layout: React.FC = () => {
                   </div>
                 )}
               </div>
+                <Link
+                  to="/dashboard"
+                  className="block bg-blue-600 text-white px-3 py-2 rounded-md text-base font-medium hover:bg-blue-700 transition-colors"
+                >
+                  <Settings className="h-4 w-4 inline mr-2" />
+                  Panel
+                </Link>
+                
             </div>
             
             {/* Mobile menu button */}
