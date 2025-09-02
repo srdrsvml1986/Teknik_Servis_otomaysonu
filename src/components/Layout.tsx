@@ -51,7 +51,7 @@ export const Layout: React.FC = () => {
                   }`}
                 >
                   <Home className="h-4 w-4 inline mr-2" />
-                  Servis Takibi
+                  Ana Sayfa
                 </Link>
                 
                   <Link
