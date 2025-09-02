@@ -12,7 +12,7 @@ import {
 import { customerApi } from '../services/api';
 import { Customer } from '../types';
 import * as XLSX from 'xlsx';
-import { format } from 'date-fns';
+import { formatDate } from '../utils/dateUtils';
 import { useToast } from '../hooks/useToast';
 import { ToastContainer } from './Toast';
 
@@ -276,7 +276,7 @@ export const CustomerManagement: React.FC = () => {
                     {customer.address || 'N/A'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {format(new Date(customer.created_at), 'dd MMM yyyy')}
+                    {formatDate(customer.created_at)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <button

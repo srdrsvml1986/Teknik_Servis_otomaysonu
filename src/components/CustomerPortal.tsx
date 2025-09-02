@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Search, Package, MapPin, Clock, FileText, X, Activity } from 'lucide-react';
 import { serviceApi } from '../services/api';
 import { ServiceRecord, ServiceQuery, ServiceUpdate } from '../types';
-import { format } from 'date-fns';
+import { formatDate, formatDateTime } from '../utils/dateUtils';
 import { useToast } from '../hooks/useToast';
 import { ToastContainer } from './Toast';
 
@@ -207,13 +207,13 @@ export const CustomerPortal: React.FC = () => {
                   <div className="flex items-center space-x-2 text-gray-600">
                     <Clock className="h-4 w-4" />
                     <span className="text-sm">
-                      Oluşturulma: {format(new Date(record.created_at), 'dd MMM yyyy')}
+                      Oluşturulma: {formatDate(record.created_at)}
                     </span>
                   </div>
                   <div className="flex items-center space-x-2 text-gray-600">
                     <Clock className="h-4 w-4" />
                     <span className="text-sm">
-                      Güncelleme: {format(new Date(record.updated_at), 'dd MMM yyyy')}
+                      Güncelleme: {formatDate(record.updated_at)}
                     </span>
                   </div>
                 </div>
@@ -317,7 +317,7 @@ export const CustomerPortal: React.FC = () => {
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium text-gray-900">{update.action}</p>
                             <p className="text-xs text-gray-500">
-                              {format(new Date(update.performed_at), 'dd MMM yyyy HH:mm')}
+                              {formatDateTime(update.performed_at)}
                             </p>
                           </div>
                         </div>

@@ -11,7 +11,7 @@ import {
 import { useAuth } from '../hooks/useAuth';
 import { customerApi, serviceApi } from '../services/api';
 import { Customer, ServiceRecord } from '../types';
-import { format } from 'date-fns';
+import { formatDate } from '../utils/dateUtils';
 
 export const Dashboard: React.FC = () => {
   const { user } = useAuth();
@@ -179,7 +179,7 @@ export const Dashboard: React.FC = () => {
                   </div>
                   <div className="flex items-center space-x-2">
                     <Clock className="h-4 w-4" />
-                    <span>{format(new Date(service.created_at), 'dd MMM yyyy')}</span>
+                    <span>{formatDate(service.created_at)}</span>
                   </div>
                 </div>
               </div>

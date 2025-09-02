@@ -15,7 +15,7 @@ import { User } from '../types';
 import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
 import { ToastContainer } from './Toast';
-import { format } from 'date-fns';
+import { formatDate, formatDateTime } from '../utils/dateUtils';
 import { createClient } from '@supabase/supabase-js';
 
 export const UserManagement: React.FC = () => {
@@ -96,7 +96,7 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Bu kullanıcıyı silmek istediğinizden emin misiniz?')) return;
+    if (!window.confirm('Bu kullanıcıyı silmek istediğinizden emin misiniz?')) return;
     
     try {
       const { error } = await deleteUser(id);
@@ -227,12 +227,12 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {user.last_sign_in_at 
-                      ? format(new Date(user.last_sign_in_at), 'dd MMM yyyy HH:mm')
+                      ? formatDateTime(user.last_sign_in_at)
                       : 'Hiç giriş yapmadı'
                     }
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {format(new Date(user.created_at), 'dd MMM yyyy')}
+                    {formatDate(user.created_at)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <button

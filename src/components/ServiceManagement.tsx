@@ -14,7 +14,7 @@ import {
 import { serviceApi, customerApi } from '../services/api';
 import { ServiceRecord, Customer } from '../types';
 import { useAuth } from '../hooks/useAuth';
-import { format } from 'date-fns';
+import { formatDate } from '../utils/dateUtils';
 import { useToast } from '../hooks/useToast';
 import { ToastContainer } from './Toast';
 
@@ -286,7 +286,7 @@ export const ServiceManagement: React.FC = () => {
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {format(new Date(service.created_at), 'dd MMM yyyy')}
+                    {formatDate(service.created_at)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <button

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, Clock, User, Database } from 'lucide-react';
 import { auditApi } from '../services/api';
 import { AuditLog } from '../types';
-import { format } from 'date-fns';
+import { formatDateTime, formatDateTimeSeconds } from '../utils/dateUtils';
 import { useToast } from '../hooks/useToast';
 import { ToastContainer } from './Toast';
 
@@ -171,7 +171,7 @@ export const AuditLogs: React.FC = () => {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center space-x-2 text-sm text-gray-600">
                       <Clock className="h-4 w-4" />
-                      <span>{format(new Date(log.performed_at), 'dd MMM yyyy HH:mm')}</span>
+                      <span>{formatDateTime(log.performed_at)}</span>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-center">
@@ -211,7 +211,7 @@ export const AuditLogs: React.FC = () => {
                   <div><span className="font-medium">Tablo:</span> {selectedLog.table_name}</div>
                   <div><span className="font-medium">Kayıt ID:</span> {selectedLog.record_id}</div>
                   <div><span className="font-medium">Kullanıcı:</span> {selectedLog.performed_by_user?.email || 'Sistem'}</div>
-                  <div><span className="font-medium">Zaman:</span> {format(new Date(selectedLog.performed_at), 'dd MMM yyyy HH:mm:ss')}</div>
+                  <div><span className="font-medium">Zaman:</span> {formatDateTimeSeconds(selectedLog.performed_at)}</div>
                 </div>
               </div>
             </div>

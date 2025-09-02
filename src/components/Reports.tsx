@@ -9,7 +9,8 @@ import {
 } from 'lucide-react';
 import { serviceApi, customerApi } from '../services/api';
 import { ServiceRecord, Customer } from '../types';
-import { format, subDays, startOfDay, endOfDay } from 'date-fns';
+import { subDays, startOfDay, endOfDay, format } from 'date-fns';
+import { formatDate, formatDateTime } from '../utils/dateUtils';
 import * as XLSX from 'xlsx';
 import { useToast } from '../hooks/useToast';
 import { ToastContainer } from './Toast';
@@ -110,8 +111,8 @@ export const Reports: React.FC = () => {
       'Serial Number': service.product_serial,
       'Service Center': service.service_center,
       'Status': service.status,
-      'Created At': format(new Date(service.created_at), 'yyyy-MM-dd HH:mm'),
-      'Updated At': format(new Date(service.updated_at), 'yyyy-MM-dd HH:mm'),
+      'Created At': formatDateTime(service.created_at),
+      'Updated At': formatDateTime(service.updated_at),
       'Description': service.description || '',
     }));
 
