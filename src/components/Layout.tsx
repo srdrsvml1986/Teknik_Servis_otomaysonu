@@ -55,7 +55,7 @@ export default function Layout() {
             </div>
 
             {/* Desktop Navigation */}
-            {user && (
+            {user && location.pathname !== '/' && (
               <div className="hidden md:flex items-center space-x-8">
                 {navigationItems.map((item) => {
                   const Icon = item.icon;
@@ -79,14 +79,16 @@ export default function Layout() {
 
             {/* Right side buttons */}
             <div className="flex items-center space-x-4">
-              {/* Panel Button - Always visible */}
-              <Link
-                to="/dashboard"
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center space-x-2 transition-colors"
-              >
-                <Settings className="h-4 w-4" />
-                <span className="hidden sm:inline">Panel</span>
-              </Link>
+              {/* Panel Button - Only show on homepage when not logged in, or always when logged in */}
+              {(!user || location.pathname !== '/') && (
+                <Link
+                  to="/dashboard"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center space-x-2 transition-colors"
+                >
+                  <Settings className="h-4 w-4" />
+                  <span className="hidden sm:inline">Panel</span>
+                </Link>
+              )}
 
               {user ? (
                 <>
@@ -127,7 +129,9 @@ export default function Layout() {
                   {/* Mobile menu button */}
                   <button
                     onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                    className="md:hidden p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:outline-none"
+                    className={`md:hidden p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:outline-none ${
+                      location.pathname === '/' ? 'hidden' : ''
+                    }`}
                   >
                     {isMobileMenuOpen ? (
                       <X className="h-6 w-6" />
@@ -137,18 +141,20 @@ export default function Layout() {
                   </button>
                 </>
               ) : (
-                <Link
-                  to="/login"
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
-                >
-                  Giriş Yap
-                </Link>
+                location.pathname === '/' && (
+                  <Link
+                    to="/login"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                  >
+                    Giriş Yap
+                  </Link>
+                )
               )}
             </div>
           </div>
 
           {/* Mobile Navigation Menu */}
-          {user && isMobileMenuOpen && (
+          {user && isMobileMenuOpen && location.pathname !== '/' && (
             <div className="md:hidden border-t border-gray-200 py-4">
               <div className="space-y-2">
                 {navigationItems.map((item) => {
