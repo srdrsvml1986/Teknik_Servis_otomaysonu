@@ -72,22 +72,22 @@ export const CustomerPortal: React.FC = () => {
   return (
     <>
       <ToastContainer toasts={toasts} onRemove={removeToast} />
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-6 sm:py-12">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+        <div className="text-center mb-8 sm:mb-12">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
             Servis Durumunuzu Takip Edin
           </h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto px-4">
             Donanım servis talebinizin güncel durumunu kontrol etmek için aşağıdaki bilgileri girin
           </p>
         </div>
 
-        <div className="bg-white rounded-xl shadow-lg p-8 mb-8">
-          <div className="flex space-x-4 mb-6">
+        <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 lg:p-8 mb-6 sm:mb-8">
+          <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 mb-6">
             <button
               onClick={() => setQueryType('personal')}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              className={`px-4 py-2 rounded-lg font-medium transition-colors text-sm sm:text-base ${
                 queryType === 'personal'
                   ? 'bg-blue-600 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -97,7 +97,7 @@ export const CustomerPortal: React.FC = () => {
             </button>
             <button
               onClick={() => setQueryType('tracking')}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              className={`px-4 py-2 rounded-lg font-medium transition-colors text-sm sm:text-base ${
                 queryType === 'tracking'
                   ? 'bg-blue-600 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -108,7 +108,7 @@ export const CustomerPortal: React.FC = () => {
           </div>
 
           {queryType === 'personal' ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Ad
@@ -117,7 +117,7 @@ export const CustomerPortal: React.FC = () => {
                   type="text"
                   value={query.first_name || ''}
                   onChange={(e) => setQuery({ ...query, first_name: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
                   placeholder="Adınızı girin"
                 />
               </div>
@@ -129,11 +129,11 @@ export const CustomerPortal: React.FC = () => {
                   type="text"
                   value={query.last_name || ''}
                   onChange={(e) => setQuery({ ...query, last_name: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
                   placeholder="Soyadınızı girin"
                 />
               </div>
-              <div>
+              <div className="sm:col-span-2 lg:col-span-1">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Telefon Numarası
                 </label>
@@ -141,7 +141,7 @@ export const CustomerPortal: React.FC = () => {
                   type="tel"
                   value={query.phone || ''}
                   onChange={(e) => setQuery({ ...query, phone: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
                   placeholder="Telefon numaranızı girin"
                 />
               </div>
@@ -155,7 +155,7 @@ export const CustomerPortal: React.FC = () => {
                 type="text"
                 value={query.tracking_number || ''}
                 onChange={(e) => setQuery({ ...query, tracking_number: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
                 placeholder="Takip numarasını girin (örn: TS20250103-1234)"
               />
             </div>
@@ -164,7 +164,7 @@ export const CustomerPortal: React.FC = () => {
           <button
             onClick={handleSearch}
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+            className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 text-sm sm:text-base"
           >
             <Search className="h-5 w-5" />
             <span>{loading ? 'Aranıyor...' : 'Servis Kayıtlarını Ara'}</span>
@@ -173,46 +173,46 @@ export const CustomerPortal: React.FC = () => {
 
         {results?.length > 0 && (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">Bulunan Servis Kayıtları</h2>
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 px-4 sm:px-0">Bulunan Servis Kayıtları</h2>
             {results.map((record) => (
-              <div key={record.id} className="bg-white rounded-xl shadow-lg p-6">
+              <div key={record.id} className="bg-white rounded-xl shadow-lg p-4 sm:p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div>
-                    <h3 className="text-xl font-semibold text-gray-900 mb-1">
+                    <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-1">
                       {record.product_name}
                     </h3>
-                    <p className="text-gray-600">Seri: {record.product_serial}</p>
+                    <p className="text-sm sm:text-base text-gray-600">Seri: {record.product_serial}</p>
                   </div>
-                  <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(record.status)}`}>
+                  <span className={`px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium border ${getStatusColor(record.status)}`}>
                     {record.status === 'pending' ? 'BEKLEMEDE' :
                      record.status === 'in_progress' ? 'İŞLEMDE' :
                      record.status === 'completed' ? 'TAMAMLANDI' : 'İPTAL EDİLDİ'}
                   </span>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                   <div className="flex items-center space-x-2 text-gray-600">
                     <Package className="h-4 w-4" />
                     <button
                       onClick={() => handleServiceClick(record)}
-                      className="text-sm text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
+                      className="text-xs sm:text-sm text-blue-600 hover:text-blue-800 hover:underline cursor-pointer break-all"
                     >
                       #{record.tracking_number}
                     </button>
                   </div>
                   <div className="flex items-center space-x-2 text-gray-600">
                     <MapPin className="h-4 w-4" />
-                    <span className="text-sm">{record.service_center}</span>
+                    <span className="text-xs sm:text-sm">{record.service_center}</span>
                   </div>
                   <div className="flex items-center space-x-2 text-gray-600">
                     <Clock className="h-4 w-4" />
-                    <span className="text-sm">
+                    <span className="text-xs sm:text-sm">
                       Oluşturulma: {formatDate(record.created_at)}
                     </span>
                   </div>
                   <div className="flex items-center space-x-2 text-gray-600">
                     <Clock className="h-4 w-4" />
-                    <span className="text-sm">
+                    <span className="text-xs sm:text-sm">
                       Güncelleme: {formatDate(record.updated_at)}
                     </span>
                   </div>
@@ -223,8 +223,8 @@ export const CustomerPortal: React.FC = () => {
                     <div className="flex items-start space-x-2">
                       <FileText className="h-4 w-4 text-gray-400 mt-1" />
                       <div>
-                        <p className="text-sm font-medium text-gray-700 mb-1">Servis Açıklaması</p>
-                        <p className="text-gray-600">{record.description}</p>
+                        <p className="text-xs sm:text-sm font-medium text-gray-700 mb-1">Servis Açıklaması</p>
+                        <p className="text-xs sm:text-sm text-gray-600">{record.description}</p>
                       </div>
                     </div>
                   </div>
@@ -235,12 +235,12 @@ export const CustomerPortal: React.FC = () => {
         )}
 
         {hasSearched && results?.length === 0 && (
-          <div className="bg-white rounded-xl shadow-lg p-8 text-center">
+          <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8 text-center">
             <div className="text-gray-400 mb-4">
-              <Search className="h-16 w-16 mx-auto" />
+              <Search className="h-12 w-12 sm:h-16 sm:w-16 mx-auto" />
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Servis Kaydı Bulunamadı</h3>
-            <p className="text-gray-600">
+            <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">Servis Kaydı Bulunamadı</h3>
+            <p className="text-sm sm:text-base text-gray-600 px-4">
               Arama kriterlerinizle eşleşen herhangi bir servis kaydı bulamadık. 
               Lütfen bilgilerinizi kontrol edin ve tekrar deneyin.
             </p>
@@ -250,24 +250,24 @@ export const CustomerPortal: React.FC = () => {
         {/* Service Details Modal */}
         {selectedService && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-xl shadow-lg max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
+            <div className="bg-white rounded-xl shadow-lg max-w-2xl w-full p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-semibold text-gray-900">
+                <h3 className="text-lg sm:text-xl font-semibold text-gray-900 pr-4">
                   Servis Detayları - #{selectedService.tracking_number}
                 </h3>
                 <button
                   onClick={() => setSelectedService(null)}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-gray-400 hover:text-gray-600 flex-shrink-0"
                 >
                   <X className="h-5 w-5" />
                 </button>
               </div>
 
               {/* Service Info */}
-              <div className="bg-gray-50 rounded-lg p-4 mb-6">
+              <div className="bg-gray-50 rounded-lg p-3 sm:p-4 mb-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <h4 className="font-medium text-gray-900 mb-2">Ürün Bilgileri</h4>
+                    <h4 className="text-sm sm:text-base font-medium text-gray-900 mb-2">Ürün Bilgileri</h4>
                     <div className="space-y-1 text-sm">
                       <div><span className="font-medium">Ürün:</span> {selectedService.product_name}</div>
                       <div><span className="font-medium">Seri:</span> {selectedService.product_serial}</div>
@@ -275,15 +275,15 @@ export const CustomerPortal: React.FC = () => {
                     </div>
                   </div>
                   <div>
-                    <h4 className="font-medium text-gray-900 mb-2">Güncel Durum</h4>
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(selectedService.status)}`}>
+                    <h4 className="text-sm sm:text-base font-medium text-gray-900 mb-2">Güncel Durum</h4>
+                    <span className={`px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium border ${getStatusColor(selectedService.status)}`}>
                       {selectedService.status === 'pending' ? 'BEKLEMEDE' :
                        selectedService.status === 'in_progress' ? 'İŞLEMDE' :
                        selectedService.status === 'completed' ? 'TAMAMLANDI' : 'İPTAL EDİLDİ'}
                     </span>
                     {selectedService.description && (
                       <div className="mt-3">
-                        <p className="text-sm text-gray-600">{selectedService.description}</p>
+                        <p className="text-xs sm:text-sm text-gray-600">{selectedService.description}</p>
                       </div>
                     )}
                   </div>
@@ -292,7 +292,7 @@ export const CustomerPortal: React.FC = () => {
 
               {/* Service Timeline */}
               <div>
-                <h4 className="font-medium text-gray-900 mb-4 flex items-center space-x-2">
+                <h4 className="text-sm sm:text-base font-medium text-gray-900 mb-4 flex items-center space-x-2">
                   <Activity className="h-4 w-4" />
                   <span>Servis Zaman Çizelgesi</span>
                 </h4>
@@ -315,7 +315,7 @@ export const CustomerPortal: React.FC = () => {
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-900">{update.action}</p>
+                            <p className="text-xs sm:text-sm font-medium text-gray-900">{update.action}</p>
                             <p className="text-xs text-gray-500">
                               {formatDateTime(update.performed_at)}
                             </p>
@@ -325,7 +325,7 @@ export const CustomerPortal: React.FC = () => {
                     ) : (
                       <div className="text-center py-8 text-gray-500">
                         <Activity className="h-8 w-8 mx-auto mb-2 text-gray-300" />
-                        <p>Servis güncellemesi bulunmuyor</p>
+                        <p className="text-sm">Servis güncellemesi bulunmuyor</p>
                       </div>
                     )}
                   </div>

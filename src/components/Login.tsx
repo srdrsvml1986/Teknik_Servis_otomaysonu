@@ -34,13 +34,13 @@ export const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center py-6 sm:py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full">
-        <div className="bg-white rounded-xl shadow-lg p-8">
+        <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8">
           <div className="text-center mb-8">
             <LogIn className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-gray-900">Personel Girişi</h2>
-            <p className="text-gray-600 mt-2">Yönetim paneline erişmek için giriş yapın</p>
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Personel Girişi</h2>
+            <p className="text-sm sm:text-base text-gray-600 mt-2">Yönetim paneline erişmek için giriş yapın</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -54,7 +54,7 @@ export const Login: React.FC = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
                 placeholder="E-posta adresinizi girin"
               />
             </div>
@@ -70,7 +70,7 @@ export const Login: React.FC = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
                   placeholder="Şifrenizi girin"
                 />
                 <button
@@ -85,21 +85,21 @@ export const Login: React.FC = () => {
 
             {error && (
               <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                <p className="text-red-600 text-sm">{error}</p>
+                <p className="text-red-600 text-xs sm:text-sm">{error}</p>
               </div>
             )}
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
             >
               {loading ? 'Giriş Yapılıyor...' : 'Giriş Yap'}
             </button>
           </form>
 
           <div className="mt-6 pt-6 border-t text-center">
-            <p className="text-sm text-gray-600">
+            <p className="text-xs sm:text-sm text-gray-600">
               Erişim gerekiyor mu? Yöneticinizle iletişime geçin
             </p>
           </div>
