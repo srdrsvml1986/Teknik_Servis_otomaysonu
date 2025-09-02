@@ -95,45 +95,8 @@ export const Layout: React.FC = () => {
                 >
                   <Home className="h-4 w-4 inline mr-2" />
                   Yönetim Paneli
-                </Link>   
-         
-                {user.role === 'admin' && (
-                  <>
-                    <Link
-                      to="/users"
-                      className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                        isActive('/users') 
-                          ? 'bg-blue-100 text-blue-700' 
-                          : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                      }`}
-                    >
-                      <Users className="h-4 w-4 inline mr-2" />
-                      Kullanıcılar
-                    </Link>
-                    <Link
-                      to="/reports"
-                      className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                        isActive('/reports') 
-                          ? 'bg-blue-100 text-blue-700' 
-                          : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                      }`}
-                    >
-                      <FileText className="h-4 w-4 inline mr-2" />
-                      Raporlar
-                    </Link>
-                    <Link
-                      to="/audit"
-                      className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                        isActive('/audit') 
-                          ? 'bg-blue-100 text-blue-700' 
-                          : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                      }`}
-                    >
-                      <Search className="h-4 w-4 inline mr-2" />
-                      Denetim Kayıtları
-                    </Link>
-                  </>
-                )}
+                </Link>          
+       
               </div>
             </div>
             <div className="flex items-center space-x-4">
