@@ -15,9 +15,12 @@ import { serviceApi, customerApi } from '../services/api';
 import { ServiceRecord, Customer } from '../types';
 import { useAuth } from '../hooks/useAuth';
 import { format } from 'date-fns';
+import { useToast } from '../hooks/useToast';
+import { ToastContainer } from './Toast';
 
 export const ServiceManagement: React.FC = () => {
   const { user } = useAuth();
+  const { toasts, removeToast, success, error: showError } = useToast();
   const [services, setServices] = useState<ServiceRecord[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [filteredServices, setFilteredServices] = useState<ServiceRecord[]>([]);
@@ -65,7 +68,7 @@ export const ServiceManagement: React.FC = () => {
       setCustomers(customersData);
     } catch (error) {
       console.error('Error loading data:', error);
-      alert('Error loading data');
+      showError('Yükleme Hatası', 'Veriler yüklenirken hata oluştu');
     } finally {
       setLoading(false);
     }
@@ -83,10 +86,11 @@ export const ServiceManagement: React.FC = () => {
         if (oldStatus !== formData.status) {
           await serviceApi.addUpdate(
             editingService.id,
-            `Status changed from ${oldStatus} to ${formData.status}`,
+            `Durum ${oldStatus} durumundan ${formData.status} durumuna değiştirildi`,
             user!.id
           );
         }
+        success('Servis Güncellendi', 'Servis kaydı başarıyla güncellendi');
       } else {
         const newService = await serviceApi.create({
           ...formData,
@@ -95,30 +99,32 @@ export const ServiceManagement: React.FC = () => {
         
         await serviceApi.addUpdate(
           newService.id,
-          'Service record created',
+          'Servis kaydı oluşturuldu',
           user!.id
         );
+        success('Servis Oluşturuldu', 'Yeni servis kaydı başarıyla oluşturuldu');
       }
       
       await loadData();
       resetForm();
     } catch (error) {
       console.error('Error saving service:', error);
-      alert('Error saving service record');
+      showError('Kaydetme Hatası', 'Servis kaydı kaydedilirken hata oluştu');
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this service record?')) return;
+    if (!confirm('Bu servis kaydını silmek istediğinizden emin misiniz?')) return;
     
     try {
       await serviceApi.delete(id);
       await loadData();
+      success('Servis Silindi', 'Servis kaydı başarıyla silindi');
     } catch (error) {
       console.error('Error deleting service:', error);
-      alert('Error deleting service record');
+      showError('Silme Hatası', 'Servis kaydı silinirken hata oluştu');
     }
   };
 
@@ -167,6 +173,8 @@ export const ServiceManagement: React.FC = () => {
   }
 
   return (
+    <>
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
@@ -422,5 +430,6 @@ export const ServiceManagement: React.FC = () => {
         </div>
       )}
     </div>
+    </>
   );
 };

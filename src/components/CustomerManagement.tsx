@@ -13,8 +13,11 @@ import { customerApi } from '../services/api';
 import { Customer } from '../types';
 import * as XLSX from 'xlsx';
 import { format } from 'date-fns';
+import { useToast } from '../hooks/useToast';
+import { ToastContainer } from './Toast';
 
 export const CustomerManagement: React.FC = () => {
+  const { toasts, removeToast, success, error: showError } = useToast();
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
@@ -48,7 +51,7 @@ export const CustomerManagement: React.FC = () => {
       setCustomers(data);
     } catch (error) {
       console.error('Error loading customers:', error);
-      alert('Error loading customers');
+      showError('Yükleme Hatası', 'Müşteriler yüklenirken hata oluştu');
     } finally {
       setLoading(false);
     }
@@ -61,29 +64,32 @@ export const CustomerManagement: React.FC = () => {
     try {
       if (editingCustomer) {
         await customerApi.update(editingCustomer.id, formData);
+        success('Müşteri Güncellendi', 'Müşteri bilgileri başarıyla güncellendi');
       } else {
         await customerApi.create(formData);
+        success('Müşteri Eklendi', 'Yeni müşteri başarıyla eklendi');
       }
       
       await loadCustomers();
       resetForm();
     } catch (error) {
       console.error('Error saving customer:', error);
-      alert('Error saving customer');
+      showError('Kaydetme Hatası', 'Müşteri kaydedilirken hata oluştu');
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this customer?')) return;
+    if (!confirm('Bu müşteriyi silmek istediğinizden emin misiniz?')) return;
     
     try {
       await customerApi.delete(id);
       await loadCustomers();
+      success('Müşteri Silindi', 'Müşteri başarıyla silindi');
     } catch (error) {
       console.error('Error deleting customer:', error);
-      alert('Error deleting customer');
+      showError('Silme Hatası', 'Müşteri silinirken hata oluştu');
     }
   };
 
@@ -134,10 +140,10 @@ export const CustomerManagement: React.FC = () => {
 
         await customerApi.importFromExcel(customers);
         await loadCustomers();
-        alert(`Successfully imported ${customers.length} customers`);
+        success('İçe Aktarma Tamamlandı', `${customers.length} müşteri başarıyla içe aktarıldı`);
       } catch (error) {
         console.error('Error importing Excel file:', error);
-        alert('Error importing Excel file');
+        showError('İçe Aktarma Hatası', 'Excel dosyası içe aktarılırken hata oluştu');
       }
     };
     reader.readAsArrayBuffer(file);
@@ -168,6 +174,8 @@ export const CustomerManagement: React.FC = () => {
   }
 
   return (
+    <>
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
@@ -393,5 +401,6 @@ export const CustomerManagement: React.FC = () => {
         </div>
       )}
     </div>
+    </>
   );
 };

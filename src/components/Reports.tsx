@@ -11,8 +11,11 @@ import { serviceApi, customerApi } from '../services/api';
 import { ServiceRecord, Customer } from '../types';
 import { format, subDays, startOfDay, endOfDay } from 'date-fns';
 import * as XLSX from 'xlsx';
+import { useToast } from '../hooks/useToast';
+import { ToastContainer } from './Toast';
 
 export const Reports: React.FC = () => {
+  const { toasts, removeToast, success, error: showError } = useToast();
   const [services, setServices] = useState<ServiceRecord[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
@@ -35,7 +38,7 @@ export const Reports: React.FC = () => {
       setCustomers(customersData);
     } catch (error) {
       console.error('Error loading data:', error);
-      alert('Error loading data');
+      showError('Yükleme Hatası', 'Veriler yüklenirken hata oluştu');
     } finally {
       setLoading(false);
     }
@@ -125,6 +128,7 @@ export const Reports: React.FC = () => {
     XLSX.utils.book_append_sheet(workbook, servicesSheet, 'Detailed Services');
     
     XLSX.writeFile(workbook, `service-report-${dateRange.start}-to-${dateRange.end}.xlsx`);
+    success('Rapor Dışa Aktarıldı', 'Excel raporu başarıyla indirildi');
   };
 
   if (loading) {
@@ -136,6 +140,8 @@ export const Reports: React.FC = () => {
   }
 
   return (
+    <>
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
@@ -330,5 +336,6 @@ export const Reports: React.FC = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };

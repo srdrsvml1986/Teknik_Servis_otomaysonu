@@ -3,8 +3,11 @@ import { Search, Clock, User, Database } from 'lucide-react';
 import { auditApi } from '../services/api';
 import { AuditLog } from '../types';
 import { format } from 'date-fns';
+import { useToast } from '../hooks/useToast';
+import { ToastContainer } from './Toast';
 
 export const AuditLogs: React.FC = () => {
+  const { toasts, removeToast, error: showError } = useToast();
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [filteredLogs, setFilteredLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(true);
@@ -41,7 +44,7 @@ export const AuditLogs: React.FC = () => {
       setLogs(data);
     } catch (error) {
       console.error('Error loading audit logs:', error);
-      alert('Error loading audit logs');
+      showError('Yükleme Hatası', 'Denetim kayıtları yüklenirken hata oluştu');
     } finally {
       setLoading(false);
     }
@@ -67,6 +70,8 @@ export const AuditLogs: React.FC = () => {
   }
 
   return (
+    <>
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Denetim Kayıtları</h1>
@@ -232,5 +237,6 @@ export const AuditLogs: React.FC = () => {
         </div>
       )}
     </div>
+    </>
   );
 };
