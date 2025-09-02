@@ -34,7 +34,15 @@ export const Layout: React.FC = () => {
               <div className="flex items-center">
                 <Link to="/" className="flex items-center space-x-2">
                   <Settings className="h-8 w-8 text-blue-600" />
-                  <span className="text-xl font-bold text-gray-900">Saysan Hırdavat</span>
+                  <div className="flex flex-col">
+                    <span className="text-xl font-bold text-gray-900">Saysan İnşaat Ve Hırdavat</span>
+                    <div className="flex items-center space-x-4 text-xs text-gray-600">
+                      <a href="tel:05323491850" className="hover:text-blue-600 transition-colors">
+                        0532 349 18 50
+                      </a>
+                      <span>Osmaniye İli Sanayi Sitesi</span>
+                    </div>
+                  </div>
                 </Link>
               </div>
               <div className="flex items-center space-x-4">
@@ -74,7 +82,15 @@ export const Layout: React.FC = () => {
             <div className="flex items-center space-x-8">
               <Link to="/" className="flex items-center space-x-2">
                 <Settings className="h-8 w-8 text-blue-600" />
-                <span className="text-xl font-bold text-gray-900">TechService</span>
+                <div className="flex flex-col">
+                  <span className="text-xl font-bold text-gray-900">Saysan İnşaat Ve Hırdavat</span>
+                  <div className="flex items-center space-x-4 text-xs text-gray-600">
+                    <a href="tel:05323491850" className="hover:text-blue-600 transition-colors">
+                      0532 349 18 50
+                    </a>
+                    <span>Osmaniye İli Sanayi Sitesi</span>
+                  </div>
+                </div>
               </Link>
               <div className="hidden md:flex space-x-4">
                 <Link
