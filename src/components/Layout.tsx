@@ -1,4 +1,5 @@
 import React from 'react';
+import { useState } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { 
@@ -17,6 +18,7 @@ export const Layout: React.FC = () => {
   const { user, signOut } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
@@ -201,14 +203,37 @@ export const Layout: React.FC = () => {
             </div>
             <div className="flex items-center space-x-4">
            
-              <div className="flex items-center space-x-2 text-sm text-gray-600">
-                <User className="h-4 w-4" />
-                <span>{user.email}</span>
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  user.role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-green-100 text-green-800'
-                }`}>
-                  {user.role}
-                </span>
+              <div className="relative">
+                <div 
+                  className="flex items-center space-x-2 text-sm text-gray-600 cursor-pointer hover:text-gray-900 transition-colors"
+                  onMouseEnter={() => setShowProfileDropdown(true)}
+                  onMouseLeave={() => setShowProfileDropdown(false)}
+                >
+                  <User className="h-4 w-4" />
+                  <span>{user.email}</span>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    user.role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-green-100 text-green-800'
+                  }`}>
+                    {user.role}
+                  </span>
+                </div>
+                
+                {showProfileDropdown && (
+                  <div 
+                    className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50"
+                    onMouseEnter={() => setShowProfileDropdown(true)}
+                    onMouseLeave={() => setShowProfileDropdown(false)}
+                  >
+                    <Link
+                      to="/profile"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                      onClick={() => setShowProfileDropdown(false)}
+                    >
+                      <User className="h-4 w-4 inline mr-2" />
+                      Profilim
+                    </Link>
+                  </div>
+                )}
               </div>
               <button
                 onClick={handleSignOut}
