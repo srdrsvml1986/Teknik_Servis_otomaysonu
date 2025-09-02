@@ -185,8 +185,8 @@ export const Layout: React.FC = () => {
                 <span className="text-lg font-bold text-gray-900 sm:hidden">Saysan</span>
               </Link>
               
-              {/* Dashboard Navigation - Only show when user is logged in and not on home page */}
-              {user && location.pathname !== '/' && (
+              {/* Dashboard Navigation - Show when user is logged in and on dashboard pages */}
+              {user && (location.pathname.startsWith('/dashboard') || location.pathname.startsWith('/customers') || location.pathname.startsWith('/services') || location.pathname.startsWith('/users') || location.pathname.startsWith('/reports') || location.pathname.startsWith('/audit')) && (
                 <div className="hidden lg:flex items-center space-x-4">
                   <Link
                     to="/customers"
