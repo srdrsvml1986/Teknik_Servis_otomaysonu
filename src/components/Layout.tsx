@@ -137,7 +137,7 @@ export const Layout: React.FC = () => {
               </Link>
               
               {/* Dashboard Navigation - Only show when user is logged in and not on home page */}
-              {user && !isActive('/') && (
+              {user && location.pathname !== '/' && (
                 <div className="flex items-center space-x-4">
                   <Link
                     to="/customers"
@@ -202,40 +202,48 @@ export const Layout: React.FC = () => {
               )}
             </div>
             <div className="flex items-center space-x-4">
+              {user && isActive('/') && (
+                <Link
+                  to="/dashboard"
+                  className="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors"
+                >
+                  <Settings className="h-4 w-4 inline mr-2" />
+                  Yönetim Paneli
+                </Link>
+              )}
+              
            
               <div className="relative">
-                <div 
+                <button 
                   className="flex items-center space-x-2 text-sm text-gray-600 cursor-pointer hover:text-gray-900 transition-colors"
-                  onMouseEnter={() => setShowProfileDropdown(true)}
-                  onMouseLeave={() => setShowProfileDropdown(false)}
+                  onClick={() => setShowProfileDropdown(!showProfileDropdown)}
+                  onBlur={() => setTimeout(() => setShowProfileDropdown(false), 150)}
                 >
                   <User className="h-4 w-4" />
                   <span>{user.email}</span>
-                </div>
+                </button>
                 
                 {showProfileDropdown && (
-                  <div 
-                    className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50"
-                    onMouseEnter={() => setShowProfileDropdown(true)}
-                    onMouseLeave={() => setShowProfileDropdown(false)}
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50"
                   >
                     <Link
                       to="/profile"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors w-full text-left"
                       onClick={() => setShowProfileDropdown(false)}
                     >
                       <User className="h-4 w-4 inline mr-2" />
                       Profilim
                     </Link>
+                    <button
+                      onClick={handleSignOut}
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors w-full text-left"
+                    >
+                      <LogOut className="h-4 w-4 inline mr-2" />
+                      Çıkış Yap
+                    </button>
                   </div>
                 )}
               </div>
-              <button
-                onClick={handleSignOut}
-                className="text-gray-600 hover:text-gray-900 p-2 rounded-md hover:bg-gray-100 transition-colors"
-              >
-                <LogOut className="h-5 w-5" />
-              </button>
             </div>
           </div>
         </div>
