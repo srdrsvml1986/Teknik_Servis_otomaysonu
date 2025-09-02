@@ -3,8 +3,11 @@ import { Search, Package, MapPin, Clock, FileText, X, Activity } from 'lucide-re
 import { serviceApi } from '../services/api';
 import { ServiceRecord, ServiceQuery, ServiceUpdate } from '../types';
 import { format } from 'date-fns';
+import { useToast } from '../hooks/useToast';
+import { ToastContainer } from './Toast';
 
 export const CustomerPortal: React.FC = () => {
+  const { toasts, removeToast, success, error: showError } = useToast();
   const [query, setQuery] = useState<ServiceQuery>({});
   const [results, setResults] = useState<ServiceRecord[]>([]);
   const [loading, setLoading] = useState(false);
@@ -16,11 +19,11 @@ export const CustomerPortal: React.FC = () => {
 
   const handleSearch = async () => {
     if (queryType === 'personal' && (!query.first_name || !query.last_name || !query.phone)) {
-      alert('Please fill in all personal information fields');
+      showError('Eksik Bilgi', 'Lütfen tüm kişisel bilgi alanlarını doldurun');
       return;
     }
     if (queryType === 'tracking' && !query.tracking_number) {
-      alert('Please enter a tracking number');
+      showError('Eksik Bilgi', 'Lütfen takip numarasını girin');
       return;
     }
 
@@ -29,9 +32,14 @@ export const CustomerPortal: React.FC = () => {
     try {
       const data = await serviceApi.queryByCustomerInfo(query);
       setResults(data);
+      if (data.length === 0) {
+        showError('Sonuç Bulunamadı', 'Arama kriterlerinizle eşleşen servis kaydı bulunamadı');
+      } else {
+        success('Arama Tamamlandı', `${data.length} servis kaydı bulundu`);
+      }
     } catch (error) {
       console.error('Search error:', error);
-      alert('Error searching for service records');
+      showError('Arama Hatası', 'Servis kayıtları aranırken hata oluştu');
     } finally {
       setLoading(false);
     }
@@ -45,7 +53,7 @@ export const CustomerPortal: React.FC = () => {
       setServiceUpdates(updates);
     } catch (error) {
       console.error('Error loading service updates:', error);
-      alert('Error loading service details');
+      showError('Yükleme Hatası', 'Servis detayları yüklenirken hata oluştu');
     } finally {
       setLoadingUpdates(false);
     }
@@ -62,6 +70,8 @@ export const CustomerPortal: React.FC = () => {
   };
 
   return (
+    <>
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
@@ -326,5 +336,6 @@ export const CustomerPortal: React.FC = () => {
         )}
       </div>
     </div>
+    </>
   );
 };
