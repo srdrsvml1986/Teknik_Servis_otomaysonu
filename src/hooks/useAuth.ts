@@ -14,7 +14,9 @@ export const useAuth = () => {
     // Get initial session
     supabase.auth.getSession().then(({ data: { session }, error }) => {
       if (error) {
-        console.error('Session retrieval error:', error);
+        if (import.meta.env.DEV) {
+          console.error('Session retrieval error:', error);
+        }
         // Clear any invalid session data
         supabase.auth.signOut();
         setUser(null);
@@ -30,7 +32,9 @@ export const useAuth = () => {
       }
       setLoading(false);
     }).catch(async (error) => {
-      console.error('Session retrieval error:', error);
+      if (import.meta.env.DEV) {
+        console.error('Session retrieval error:', error);
+      }
       // Clear invalid session data
       await supabase.auth.signOut();
       setUser(null);
@@ -40,10 +44,12 @@ export const useAuth = () => {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state change:', event, session?.user?.id);
+        if (import.meta.env.DEV) {
+          console.log('Auth state change:', event, session?.user?.id);
+        }
         
         if (event === 'TOKEN_REFRESHED') {
-          console.log('Token refreshed successfully');
+          if (import.meta.env.DEV) console.log('Token refreshed successfully');
         }
         
         if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
