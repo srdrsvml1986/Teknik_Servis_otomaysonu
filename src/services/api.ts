@@ -223,9 +223,13 @@ export const profileApi = {
   },
 
   async updateProfile(profile: Partial<Omit<Profile, 'id' | 'created_at' | 'updated_at'>>): Promise<Profile> {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('User not authenticated');
+    
     const { data, error } = await supabase
       .from('profiles')
       .update(profile)
+      .eq('id', user.id)
       .select()
       .single();
     
