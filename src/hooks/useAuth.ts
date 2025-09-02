@@ -18,6 +18,12 @@ export const useAuth = () => {
         setUser({ ...session.user, role });
       }
       setLoading(false);
+    }).catch(async (error) => {
+      console.error('Session retrieval error:', error);
+      // Clear invalid session data
+      await supabase.auth.signOut();
+      setUser(null);
+      setLoading(false);
     });
 
     // Listen for auth changes
