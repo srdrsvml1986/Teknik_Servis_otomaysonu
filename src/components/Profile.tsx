@@ -110,7 +110,7 @@ export const ProfilePage: React.FC = () => {
                 <h2 className="text-xl font-semibold text-gray-900">
                   {profile?.first_name || profile?.last_name 
                     ? `${profile.first_name} ${profile.last_name}`.trim()
-                    : 'Profil Bilgileri Eksik'
+                    : 'Profil Bilgileri'
                   }
                 </h2>
                 <div className="flex items-center space-x-2 text-gray-600">
