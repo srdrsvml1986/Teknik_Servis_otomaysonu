@@ -121,6 +121,7 @@ export const Layout: React.FC = () => {
               </div>
             )}
           </div>
+          </div>
         </nav>
         <main className="flex-1">
           <Outlet />
