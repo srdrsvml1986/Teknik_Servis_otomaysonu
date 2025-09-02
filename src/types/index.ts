@@ -57,6 +57,16 @@ export interface User {
   last_sign_in_at: string | null;
 }
 
+export interface Profile {
+  id: string;
+  first_name: string;
+  last_name: string;
+  phone: string | null;
+  address: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface ServiceQuery {
   first_name?: string; // Ad
   last_name?: string; // Soyad
