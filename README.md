@@ -90,6 +90,17 @@ npx supabase login
 npx supabase migration up --db-url  "postgresql://postgres:[YOUR-PASSWORD]@db.gotkxngcxggihlagsqv.supabase.co:5432/postgres"
 ```
 
+### Supabase functions deploy
+Uygulamayı ilk defa çalıştıracaksanız, komut satırınızda şu adımları izleyin:
+postgresql connection stringinizi supabaseden alabilirsiniz.
+```bash
+# ilk kurulumda bu komutları kullanabilirsiniz.
+npx supabase functions deploy get-all-users
+npx supabase functions deploy delete-user
+npx supabase functions deploy create-user
+npx supabase functions deploy update-user
+```
+
 ## Temel Metrikler ve Performans
 
 - **Sorgu Doğruluğu**: %95+ müşteri portalı sorguları için
