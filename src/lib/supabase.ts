@@ -5,6 +5,7 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
 if (!supabaseUrl || !supabaseAnonKey) {
   console.error('Missing Supabase environment variables');
+  throw new Error('Supabase configuration is missing. Please check your environment variables.');
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
@@ -158,8 +159,8 @@ export type Database = {
           operation: 'INSERT' | 'UPDATE' | 'DELETE';
           performed_by: string | null;
           performed_at: string;
-          old_data: any | null;
-          new_data: any | null;
+          old_data: Record<string, unknown> | null;
+          new_data: Record<string, unknown> | null;
         };
         Insert: {
           id?: string;
@@ -168,8 +169,8 @@ export type Database = {
           operation: 'INSERT' | 'UPDATE' | 'DELETE';
           performed_by?: string | null;
           performed_at?: string;
-          old_data?: any | null;
-          new_data?: any | null;
+          old_data?: Record<string, unknown> | null;
+          new_data?: Record<string, unknown> | null;
         };
         Update: {
           id?: string;
@@ -178,8 +179,8 @@ export type Database = {
           operation?: 'INSERT' | 'UPDATE' | 'DELETE';
           performed_by?: string | null;
           performed_at?: string;
-          old_data?: any | null;
-          new_data?: any | null;
+          old_data?: Record<string, unknown> | null;
+          new_data?: Record<string, unknown> | null;
         };
       };
     };

@@ -1,13 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Users, 
   Plus, 
   Edit, 
   Trash2, 
   Search,
   X,
-  UserCheck,
-  UserX,
   Shield,
   Mail
 } from 'lucide-react';
@@ -16,7 +13,6 @@ import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
 import { ToastContainer } from './Toast';
 import { formatDate, formatDateTime } from '../utils/dateUtils';
-import { createClient } from '@supabase/supabase-js';
 
 export const UserManagement: React.FC = () => {
   const { signUp, updateUser, deleteUser, getAllUsers } = useAuth();
@@ -33,8 +29,6 @@ export const UserManagement: React.FC = () => {
     role: 'authenticated' as 'admin' | 'authenticated',
   });
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
   useEffect(() => {
     loadUsers();
   }, []);
@@ -338,5 +332,5 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
       )}
     </div>
     </>
-  );
-};
+  )
+}

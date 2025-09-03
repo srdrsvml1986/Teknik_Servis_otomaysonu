@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect } from 'react';
 import { 
   BarChart3, 
@@ -8,28 +9,29 @@ import {
   Calendar
 } from 'lucide-react';
 import { serviceApi, customerApi } from '../services/api';
-import { ServiceRecord, Customer } from '../types';
+import { ServiceRecord, Customer, Profile } from '../types';
 import { subDays, startOfDay, endOfDay, format } from 'date-fns';
-import { formatDate, formatDateTime } from '../utils/dateUtils';
+import { formatDateTime } from '../utils/dateUtils';
 import * as XLSX from 'xlsx';
 import { useToast } from '../hooks/useToast';
 import { ToastContainer } from './Toast';
+import { supabase } from '../lib/supabase';
+import { useAuth } from '../hooks/useAuth';
 
 export const Reports: React.FC = () => {
+  const { getAllUsers } = useAuth();
   const { toasts, removeToast, success, error: showError } = useToast();
   const [services, setServices] = useState<ServiceRecord[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [profiles, setProfiles] = useState<Record<string, Profile>>({});
+  const [userEmails, setUserEmails] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState({
     start: format(subDays(new Date(), 30), 'yyyy-MM-dd'),
     end: format(new Date(), 'yyyy-MM-dd'),
   });
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  const loadData = async () => {
+  const loadData = React.useCallback(async () => {
     try {
       const [servicesData, customersData] = await Promise.all([
         serviceApi.getAll(),
@@ -37,13 +39,48 @@ export const Reports: React.FC = () => {
       ]);
       setServices(servicesData);
       setCustomers(customersData);
+      
+      // Benzersiz kullanıcı ID'lerini topla
+      const uniqueUserIds = [...new Set(servicesData.map(s => s.created_by))];
+      
+      if (uniqueUserIds.length > 0) {
+        // Profil bilgilerini çek (email dahil)
+        const { data: profilesData } = await supabase
+          .from('profiles')
+          .select('*')
+          .in('id', uniqueUserIds);
+        
+        const profilesMap: Record<string, Profile> = {};
+        if (profilesData) {
+          profilesData.forEach(profile => {
+            profilesMap[profile.id] = profile;
+          });
+        }
+        setProfiles(profilesMap);
+        
+        // Email'leri profiles'dan çekmeyi dene, yoksa auth.users'dan al
+        const emailsMap: Record<string, string> = {};
+        
+
+        const { data } = await getAllUsers();
+        data.forEach((u: any)=> {            
+          emailsMap[u.id] = u.email;            
+      });
+
+        
+        setUserEmails(emailsMap);
+      }
     } catch (error) {
       console.error('Error loading data:', error);
       showError('Yükleme Hatası', 'Veriler yüklenirken hata oluştu');
     } finally {
       setLoading(false);
     }
-  };
+  }, [showError]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   const filteredServices = services.filter(service => {
     const serviceDate = new Date(service.created_at);
@@ -67,7 +104,7 @@ export const Reports: React.FC = () => {
   const staffPerformance = filteredServices.reduce((acc, service) => {    
     const userId = service.created_by;
     const userKey = `User ${userId.substring(0, 8)}`;
-    if (!acc[userName]) {
+    if (!acc[userKey]) {
       acc[userKey] = { total: 0, completed: 0 };
     }
     acc[userKey].total++;
@@ -76,6 +113,7 @@ export const Reports: React.FC = () => {
     }
     return acc;
   }, {} as Record<string, { total: number; completed: number }>);
+
 
   const exportReport = () => {
     // Summary Report
@@ -308,7 +346,28 @@ export const Reports: React.FC = () => {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center space-x-2">
                       <Users className="h-4 w-4 text-gray-400" />
-                      <span className="text-sm font-medium text-gray-900">Kullanıcı {userKey.split(' ')[1]}</span>
+                      <span className="text-sm font-medium text-gray-900">
+                        {(() => {
+                          const userId = userKey.replace('User ', '');
+                          
+                          // Tam kullanıcı ID'sini bul
+                          const fullUserId = Object.keys(profiles).find(id => id.startsWith(userId)) || 
+                                           filteredServices.find(s => s.created_by.startsWith(userId))?.created_by;
+                          
+                          // Önce ad soyad kontrolü
+                          if (fullUserId && profiles[fullUserId]) {
+                            const profile = profiles[fullUserId];
+                            if (profile.first_name && profile.last_name) {
+                              return `${profile.first_name} ${profile.last_name}`;
+                            }
+                          }                          
+                          // Email adresini göster
+                          if (fullUserId && userEmails[fullUserId]) {
+                            return userEmails[fullUserId];
+                          }                        
+                        })()
+                        }
+                      </span>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
@@ -338,5 +397,5 @@ export const Reports: React.FC = () => {
       </div>
     </div>
     </>
-  );
-};
+  )
+}

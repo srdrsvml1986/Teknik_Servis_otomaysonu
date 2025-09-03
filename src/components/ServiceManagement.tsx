@@ -1,15 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
-  ClipboardList, 
   Plus, 
   Edit, 
   Trash2, 
   Search,
   X,
-  Package,
-  MapPin,
-  Clock,
-  FileText
+  MapPin
 } from 'lucide-react';
 import { serviceApi, customerApi } from '../services/api';
 import { ServiceRecord, Customer } from '../types';
@@ -29,18 +25,54 @@ export const ServiceManagement: React.FC = () => {
   const [editingService, setEditingService] = useState<ServiceRecord | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    customer_id: string;
+    product_name: string;
+    product_serial: string;
+    service_center: string;
+    status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
+    description: string;
+  }>({
     customer_id: '',
     product_name: '',
     product_serial: '',
     service_center: '',
-    status: 'pending' as const,
+    status: 'pending',
     description: '',
   });
+  const [customerSearchTerm, setCustomerSearchTerm] = useState('');
+  const [isCustomerDropdownOpen, setIsCustomerDropdownOpen] = useState(false);
+  const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     loadData();
   }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsCustomerDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  useEffect(() => {
+    setFilteredCustomers(customers);
+  }, [customers]);
+
+  useEffect(() => {
+    const filtered = customers.filter(customer =>
+      `${customer.first_name} ${customer.last_name}`.toLowerCase().includes(customerSearchTerm.toLowerCase()) ||
+      customer.phone.toLowerCase().includes(customerSearchTerm.toLowerCase())
+    );
+    setFilteredCustomers(filtered);
+  }, [customers, customerSearchTerm]);
 
   useEffect(() => {
     let filtered = services.filter(service =>
@@ -137,6 +169,8 @@ export const ServiceManagement: React.FC = () => {
       status: 'pending',
       description: '',
     });
+    setCustomerSearchTerm('');
+    setIsCustomerDropdownOpen(false);
     setEditingService(null);
     setShowModal(false);
   };
@@ -150,6 +184,10 @@ export const ServiceManagement: React.FC = () => {
       status: service.status,
       description: service.description || '',
     });
+    const selectedCustomer = customers.find(c => c.id === service.customer_id);
+    if (selectedCustomer) {
+      setCustomerSearchTerm(`${selectedCustomer.first_name} ${selectedCustomer.last_name}`);
+    }
     setEditingService(service);
     setShowModal(true);
   };
@@ -185,180 +223,212 @@ export const ServiceManagement: React.FC = () => {
   return (
     <>
       <ToastContainer toasts={toasts} onRemove={removeToast} />
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Servis Yönetimi</h1>
-          <p className="text-gray-600 mt-2">Servis kayıtlarını yönetin ve ilerlemeyi takip edin</p>
-        </div>
-        <button
-          onClick={() => setShowModal(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center space-x-2"
-        >
-          <Plus className="h-4 w-4" />
-          <span>Yeni Servis Kaydı</span>
-        </button>
-      </div>
-
-      {/* Filters */}
-      <div className="bg-white rounded-xl shadow-sm p-6 space-y-4">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-          <input
-            type="text"
-            placeholder="Takip numarası, ürün, seri veya müşteri adıyla arayın..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-        </div>
-        
-        <div className="flex space-x-4">
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+      <div className="space-y-8">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Servis Yönetimi</h1>
+            <p className="text-gray-600 mt-2">Servis kayıtlarını yönetin ve ilerlemeyi takip edin</p>
+          </div>
+          <button
+            onClick={() => setShowModal(true)}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center space-x-2"
           >
-            <option value="all">Tüm Durumlar</option>
-            <option value="pending">Beklemede</option>
-            <option value="in_progress">İşlemde</option>
-            <option value="completed">Tamamlandı</option>
-            <option value="cancelled">İptal Edildi</option>
-          </select>
+            <Plus className="h-4 w-4" />
+            <span>Yeni Servis Kaydı</span>
+          </button>
         </div>
-      </div>
 
-      {/* Services Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Servis Detayları
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Müşteri
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Ürün
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Durum
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Oluşturulma
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  İşlemler
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredServices.map((service) => (
-                <tr key={service.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">
-                        #{service.tracking_number}
-                      </div>
-                      <div className="text-sm text-gray-500 flex items-center">
-                        <MapPin className="h-3 w-3 mr-1" />
-                        {service.service_center}
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">
-                      {service.customer?.first_name} {service.customer?.last_name}
-                    </div>
-                    <div className="text-sm text-gray-500">{service.customer?.phone}</div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="text-sm font-medium text-gray-900">{service.product_name}</div>
-                    <div className="text-sm text-gray-500">Seri: {service.product_serial}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(service.status)}`}>
-                      {service.status === 'pending' ? 'BEKLEMEDE' :
-                       service.status === 'in_progress' ? 'İŞLEMDE' :
-                       service.status === 'completed' ? 'TAMAMLANDI' : 'İPTAL EDİLDİ'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {formatDate(service.created_at)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button
-                      onClick={() => handleEdit(service)}
-                      className="text-blue-600 hover:text-blue-900 mr-3"
-                    >
-                      <Edit className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(service.id)}
-                      className="text-red-600 hover:text-red-900"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </td>
+        {/* Filters */}
+        <div className="bg-white rounded-xl shadow-sm p-6 space-y-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <input
+              type="text"
+              placeholder="Takip numarası, ürün, seri veya müşteri adıyla arayın..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+          
+          <div className="flex space-x-4">
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="all">Tüm Durumlar</option>
+              <option value="pending">Beklemede</option>
+              <option value="in_progress">İşlemde</option>
+              <option value="completed">Tamamlandı</option>
+              <option value="cancelled">İptal Edildi</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Services Table */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Servis Detayları
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Müşteri
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Ürün
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Durum
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Oluşturulma
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    İşlemler
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredServices.map((service) => (
+                  <tr key={service.id} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">
+                          #{service.tracking_number}
+                        </div>
+                        <div className="text-sm text-gray-500 flex items-center">
+                          <MapPin className="h-3 w-3 mr-1" />
+                          {service.service_center}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">
+                        {service.customer?.first_name} {service.customer?.last_name}
+                      </div>
+                      <div className="text-sm text-gray-500">{service.customer?.phone}</div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="text-sm font-medium text-gray-900">{service.product_name}</div>
+                      <div className="text-sm text-gray-500">Seri: {service.product_serial}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(service.status)}`}>
+                        {service.status === 'pending' ? 'BEKLEMEDE' :
+                         service.status === 'in_progress' ? 'İŞLEMDE' :
+                         service.status === 'completed' ? 'TAMAMLANDI' : 'İPTAL EDİLDİ'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {formatDate(service.created_at)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <button
+                        onClick={() => handleEdit(service)}
+                        className="text-blue-600 hover:text-blue-900 mr-3"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(service.id)}
+                        className="text-red-600 hover:text-red-900"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
 
-      {/* Modal */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-lg max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-gray-900">
-                {editingService ? 'Servis Kaydını Düzenle' : 'Yeni Servis Kaydı'}
-              </h3>
-              <button
-                onClick={resetForm}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Müşteri *
-                </label>
-                <select
-                  required
-                  value={formData.customer_id}
-                  onChange={(e) => setFormData({ ...formData, customer_id: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        {/* Modal */}
+        {showModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-xl shadow-lg max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  {editingService ? 'Servis Kaydını Düzenle' : 'Yeni Servis Kaydı'}
+                </h3>
+                <button
+                  onClick={resetForm}
+                  className="text-gray-400 hover:text-gray-600"
                 >
-                  <option value="">Müşteri seçin</option>
-                  {customers.map((customer) => (
-                    <option key={customer.id} value={customer.id}>
-                      {customer.first_name} {customer.last_name} - {customer.phone}
-                    </option>
-                  ))}
-                </select>
+                  <X className="h-5 w-5" />
+                </button>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="relative" ref={dropdownRef}>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Ürün Adı *
+                    Müşteri *
                   </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.product_name}
-                    onChange={(e) => setFormData({ ...formData, product_name: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="örn: Laptop Model XYZ"
-                  />
+                  <div className="relative">
+                    <input
+                      type="text"
+                      required={!formData.customer_id}
+                      value={customerSearchTerm}
+                      onChange={(e) => {
+                        setCustomerSearchTerm(e.target.value);
+                        setIsCustomerDropdownOpen(true);
+                        if (!e.target.value) {
+                          setFormData({ ...formData, customer_id: '' });
+                        }
+                      }}
+                      onFocus={() => setIsCustomerDropdownOpen(true)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Müşteri adı veya telefon ile arayın..."
+                    />
+                    <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  </div>
+                  
+                  {isCustomerDropdownOpen && filteredCustomers.length > 0 && (
+                    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                      {filteredCustomers.map((customer) => (
+                        <div
+                          key={customer.id}
+                          onClick={() => {
+                            setFormData({ ...formData, customer_id: customer.id });
+                            setCustomerSearchTerm(`${customer.first_name} ${customer.last_name}`);
+                            setIsCustomerDropdownOpen(false);
+                          }}
+                          className="px-3 py-2 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                        >
+                          <div className="font-medium text-gray-900">
+                            {customer.first_name} {customer.last_name}
+                          </div>
+                          <div className="text-sm text-gray-500">{customer.phone}</div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {isCustomerDropdownOpen && filteredCustomers.length === 0 && customerSearchTerm && (
+                    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg p-3">
+                      <div className="text-gray-500 text-sm">Müşteri bulunamadı</div>
+                    </div>
+                  )}
                 </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Ürün Adı *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.product_name}
+                      onChange={(e) => setFormData({ ...formData, product_name: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="örn: Laptop Model XYZ"
+                    />
+                  </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Seri Numarası *
@@ -395,7 +465,7 @@ export const ServiceManagement: React.FC = () => {
                   <select
                     required
                     value={formData.status}
-                    onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
+                    onChange={(e) => setFormData({ ...formData, status: e.target.value as 'pending' | 'in_progress' | 'completed' | 'cancelled' })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="pending">Beklemede</option>

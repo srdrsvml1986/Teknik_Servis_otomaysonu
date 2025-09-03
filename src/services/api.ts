@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase';
-import { Customer, ServiceRecord, ServiceQuery, AuditLog, User, Profile } from '../types';
+import { Customer, ServiceRecord, ServiceQuery, AuditLog, Profile, ServiceUpdate } from '../types';
 
 export const customerApi = {
   async getAll(): Promise<Customer[]> {
@@ -145,7 +145,7 @@ export const serviceApi = {
     return data || [];
   },
 
-  async getUpdates(serviceId: string): Promise<any[]> {
+  async getUpdates(serviceId: string): Promise<ServiceUpdate[]> {
     const { data, error } = await supabase
       .from('service_updates')
       .select('*')

@@ -5,12 +5,11 @@ import {
   TrendingUp, 
   Clock,
   Package,
-  MapPin,
-  Plus
+  MapPin
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { customerApi, serviceApi } from '../services/api';
-import { Customer, ServiceRecord } from '../types';
+import { ServiceRecord } from '../types';
 import { formatDate } from '../utils/dateUtils';
 
 export const Dashboard: React.FC = () => {
@@ -29,11 +28,11 @@ export const Dashboard: React.FC = () => {
   }, []);
 
   const loadDashboardData = async () => {
+    setLoading(true);
+    
     try {
-      const [customers, services] = await Promise.all([
-        customerApi.getAll(),
-        serviceApi.getAll(),
-      ]);
+      const customers = await customerApi.getAll();
+      const services = await serviceApi.getAll();
 
       const today = new Date().toDateString();
       const completedToday = services.filter(
@@ -50,7 +49,14 @@ export const Dashboard: React.FC = () => {
 
       setRecentServices(services.slice(0, 5));
     } catch (error) {
-      console.error('Error loading dashboard data:', error);
+      console.error('Dashboard: Error loading data:', error);
+      setStats({
+        totalCustomers: 0,
+        totalServices: 0,
+        pendingServices: 0,
+        completedToday: 0,
+      });
+      setRecentServices([]);
     } finally {
       setLoading(false);
     }
@@ -66,6 +72,13 @@ export const Dashboard: React.FC = () => {
     }
   };
 
+  const getDisplayName = () => {
+    if (user?.profile?.first_name && user?.profile?.last_name) {
+      return `${user.profile.first_name} ${user.profile.last_name}`;
+    }
+    return user?.email || 'Kullanıcı';
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -78,7 +91,7 @@ export const Dashboard: React.FC = () => {
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-          Hoş geldiniz, {user?.email}
+          Hoş geldiniz, {getDisplayName()}
         </h1>
         <p className="text-sm sm:text-base text-gray-600 mt-2">
           Teknik servis operasyonlarınızın genel görünümü
@@ -186,5 +199,5 @@ export const Dashboard: React.FC = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}

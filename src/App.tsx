@@ -1,4 +1,3 @@
-import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
 import { CustomerPortal } from './components/CustomerPortal';
@@ -78,7 +77,7 @@ function App() {
         </Route>
       </Routes>
     </Router>
-  );
+  )
 }
 
 export default App;

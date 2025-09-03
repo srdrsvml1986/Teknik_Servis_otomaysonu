@@ -1,18 +1,46 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 
+interface UserProfile {
+  id: string;
+  first_name: string | null;
+  last_name: string | null;
+}
+
 interface AuthUser extends User {
   role: 'admin' | 'authenticated';
+  profile?: UserProfile | null;
 }
 
 export const useAuth = () => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const fetchUserProfile = async (userId: string): Promise<UserProfile | null> => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, first_name, last_name')
+        .eq('id', userId)
+        .single();
+
+      if (error) {
+        console.error('Error fetching profile:', error);
+        return null;
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+      return null;
+    }
+  };
+
   useEffect(() => {
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session }, error }) => {
+    supabase.auth.getSession().then(async ({ data: { session }, error }) => {
       if (error) {
         if (import.meta.env.DEV) {
           console.error('Session retrieval error:', error);
@@ -26,7 +54,8 @@ export const useAuth = () => {
       
       if (session?.user) {
         const role = session.user.app_metadata?.role || 'authenticated';
-        setUser({ ...session.user, role });
+        const profile = await fetchUserProfile(session.user.id);
+        setUser({ ...session.user, role, profile });
       } else {
         setUser(null);
       }
@@ -50,21 +79,39 @@ export const useAuth = () => {
         
         if (event === 'TOKEN_REFRESHED') {
           if (import.meta.env.DEV) console.log('Token refreshed successfully');
+          return; // Don't process token refresh as a full auth change
         }
         
-        if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
+        if (event === 'SIGNED_OUT') {
+          console.log('Auth: User signed out');
           setUser(null);
           setLoading(false);
           return;
         }
         
-        if (session?.user) {
-          const role = session.user.app_metadata?.role || 'authenticated';
-          setUser({ ...session.user, role });
-        } else {
+        if (event === 'SIGNED_IN' && session?.user) {
+          try {
+            const role = session.user.app_metadata?.role || 'authenticated';
+            
+            // Profile fetch'i kısa timeout ile sınırla
+            const profilePromise = fetchUserProfile(session.user.id);
+            const timeoutPromise = new Promise((_, reject) => 
+              setTimeout(() => reject(new Error('Profile fetch timeout')), 2000)
+            );
+            
+            const profile = await Promise.race([profilePromise, timeoutPromise]) as UserProfile | null;
+            setUser({ ...session.user, role, profile });
+          } catch {
+            // Profile yüklenemezse null profile ile devam et
+            setUser({ ...session.user, role: 'authenticated', profile: null });
+          } finally {
+            setLoading(false);
+          }
+        } else if (!session?.user) {
+          console.log('Auth: No user in session');
           setUser(null);
+          setLoading(false);
         }
-        setLoading(false);
       }
     );
 
@@ -175,9 +222,30 @@ export const useAuth = () => {
     }
   };
 
+  const getUserById = async (userId: string) => {
+    try {
+      const { data: allUsers, error } = await getAllUsers();
+      
+      if (error) {
+        return { data: null, error };
+      }
+      
+      const user = allUsers?.find((u: any) => u.id === userId);
+      
+      if (!user) {
+        return { data: null, error: new Error('Kullanıcı bulunamadı') };
+      }
+      
+      return { data: user, error: null };
+    } catch (error) {
+      return { data: null, error };
+    }
+  };
+
   return {
     user,
     loading,
+    getUserById,
     signIn,
     signUp,
     signOut,
