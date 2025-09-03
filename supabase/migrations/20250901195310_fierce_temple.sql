@@ -1,78 +1,46 @@
-/*
-  # Technical Service Automation System - Initial Schema
+-- Gerekli extension'lar
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-  1. New Tables
-    - `customers`
-      - `id` (uuid, primary key)
-      - `first_name` (text, required)
-      - `last_name` (text, required) 
-      - `phone` (text, required, unique)
-      - `email` (text, optional)
-      - `address` (text, optional)
-      - `created_at` (timestamp)
-      - `updated_at` (timestamp)
+-- Eski tetikleyicileri ve fonksiyonları temizle (varsa)
+DROP TRIGGER IF EXISTS create_profile_on_signup ON auth.users;
+DROP FUNCTION IF EXISTS create_profile_for_new_user CASCADE;
+
+-- Custom type'lar
+DO $$ 
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'service_status') THEN
+        CREATE TYPE service_status AS ENUM ('pending', 'in_progress', 'completed', 'cancelled');
+    END IF;
     
-    - `service_records`
-      - `id` (uuid, primary key)
-      - `tracking_number` (text, unique, auto-generated)
-      - `customer_id` (uuid, foreign key to customers)
-      - `created_by` (uuid, foreign key to auth.users)
-      - `product_name` (text, required)
-      - `product_serial` (text, required)
-      - `service_center` (text, required)
-      - `status` (enum: pending, in_progress, completed, cancelled)
-      - `description` (text)
-      - `created_at` (timestamp)
-      - `updated_at` (timestamp)
-    
-    - `service_updates`
-      - `id` (uuid, primary key)
-      - `service_id` (uuid, foreign key to service_records)
-      - `action` (text, required)
-      - `performed_by` (uuid, foreign key to auth.users)
-      - `performed_at` (timestamp)
-    
-    - `audit_logs`
-      - `id` (uuid, primary key)
-      - `table_name` (text, required)
-      - `record_id` (uuid, required)
-      - `operation` (enum: INSERT, UPDATE, DELETE)
-      - `performed_by` (uuid, foreign key to auth.users)
-      - `performed_at` (timestamp)
-      - `old_data` (jsonb)
-      - `new_data` (jsonb)
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'audit_operation') THEN
+        CREATE TYPE audit_operation AS ENUM ('INSERT', 'UPDATE', 'DELETE');
+    END IF;
+END $$;
 
-  2. Security
-    - Enable RLS on all tables
-    - Add policies for role-based access control
-    - Public read access for service queries
-    - Authenticated access for management operations
-
-  3. Functions
-    - Auto-generate tracking numbers for service records
-    - Audit trigger functions for automatic logging
-*/
-
--- Create custom types
-CREATE TYPE service_status AS ENUM ('pending', 'in_progress', 'completed', 'cancelled');
-CREATE TYPE audit_operation AS ENUM ('INSERT', 'UPDATE', 'DELETE');
-
--- Add user_role to auth.users metadata (handled via Supabase dashboard or auth hooks)
--- Users will have either 'admin' or 'user' role in their metadata
-
--- Create customers table
-CREATE TABLE IF NOT EXISTS customers (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  first_name text NOT NULL,
-  last_name text NOT NULL,
-  phone text NOT NULL UNIQUE,
-  email text,
+-- 1. Profiles tablosu
+CREATE TABLE IF NOT EXISTS public.profiles (
+  id uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  first_name text,
+  last_name text,
+  phone text,
   address text,
   created_at timestamptz DEFAULT now(),
   updated_at timestamptz DEFAULT now()
 );
 
--- Create service_records table
+-- 2. Diğer tablolar
+CREATE TABLE IF NOT EXISTS customers (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  first_name text NOT NULL,
+  last_name text NOT NULL,
+  phone text NOT NULL UNIQUE,
+  email text NOT NULL UNIQUE,
+  address text,
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now()
+);
+
 CREATE TABLE IF NOT EXISTS service_records (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   tracking_number text UNIQUE NOT NULL DEFAULT 'TS' || to_char(now(), 'YYYYMMDD') || '-' || LPAD(floor(random() * 10000)::text, 4, '0'),
@@ -87,7 +55,6 @@ CREATE TABLE IF NOT EXISTS service_records (
   updated_at timestamptz DEFAULT now()
 );
 
--- Create service_updates table
 CREATE TABLE IF NOT EXISTS service_updates (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   service_id uuid NOT NULL REFERENCES service_records(id) ON DELETE CASCADE,
@@ -96,7 +63,6 @@ CREATE TABLE IF NOT EXISTS service_updates (
   performed_at timestamptz DEFAULT now()
 );
 
--- Create audit_logs table
 CREATE TABLE IF NOT EXISTS audit_logs (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   table_name text NOT NULL,
@@ -108,64 +74,100 @@ CREATE TABLE IF NOT EXISTS audit_logs (
   new_data jsonb
 );
 
--- Enable Row Level Security
+-- 3. RLS etkinleştirme
 ALTER TABLE customers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE service_records ENABLE ROW LEVEL SECURITY;
 ALTER TABLE service_updates ENABLE ROW LEVEL SECURITY;
 ALTER TABLE audit_logs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
--- Customer policies (public read for service queries)
-CREATE POLICY "Anyone can read customers for service queries"
-  ON customers
-  FOR SELECT
-  TO anon, authenticated
-  USING (true);
-
-CREATE POLICY "Authenticated users can manage customers"
-  ON customers
-  FOR ALL
-  TO authenticated
-  USING (true);
+-- 4. RLS politikaları
+-- Customers policies
+DO $$ 
+BEGIN
+    DROP POLICY IF EXISTS "Public can read customers for service queries" ON customers;
+    CREATE POLICY "Public can read customers for service queries"
+      ON customers FOR SELECT
+      USING (true);
+    
+    DROP POLICY IF EXISTS "Authenticated users can manage customers" ON customers;
+    CREATE POLICY "Authenticated users can manage customers"
+      ON customers FOR ALL
+      TO authenticated
+      USING (true)
+      WITH CHECK (true);
+END $$;
 
 -- Service records policies
-CREATE POLICY "Anyone can read service records for tracking"
-  ON service_records
-  FOR SELECT
-  TO anon, authenticated
-  USING (true);
-
-CREATE POLICY "Authenticated users can manage service records"
-  ON service_records
-  FOR ALL
-  TO authenticated
-  USING (true);
+DO $$ 
+BEGIN
+    DROP POLICY IF EXISTS "Public can read service records for tracking" ON service_records;
+    CREATE POLICY "Public can read service records for tracking"
+      ON service_records FOR SELECT
+      USING (true);
+    
+    DROP POLICY IF EXISTS "Authenticated users can manage service records" ON service_records;
+    CREATE POLICY "Authenticated users can manage service records"
+      ON service_records FOR ALL
+      TO authenticated
+      USING (true)
+      WITH CHECK (true);
+END $$;
 
 -- Service updates policies
-CREATE POLICY "Anyone can read service updates"
-  ON service_updates
-  FOR SELECT
-  TO anon, authenticated
-  USING (true);
+DO $$ 
+BEGIN
+    DROP POLICY IF EXISTS "Public can read service updates" ON service_updates;
+    CREATE POLICY "Public can read service updates"
+      ON service_updates FOR SELECT
+      USING (true);
+    
+    DROP POLICY IF EXISTS "Authenticated users can create service updates" ON service_updates;
+    CREATE POLICY "Authenticated users can create service updates"
+      ON service_updates FOR INSERT
+      TO authenticated
+      WITH CHECK (true);
+END $$;
 
-CREATE POLICY "Authenticated users can create service updates"
-  ON service_updates
-  FOR INSERT
-  TO authenticated
-  WITH CHECK (true);
+-- Audit logs policies
+DO $$ 
+BEGIN
+    DROP POLICY IF EXISTS "Admin users can read audit logs" ON audit_logs;
+    CREATE POLICY "Admin users can read audit logs"
+      ON audit_logs FOR SELECT
+      TO authenticated
+      USING (
+        COALESCE(
+          (auth.jwt() -> 'user_metadata' ->> 'role'),
+          'user'
+        ) = 'admin'
+      );
+END $$;
 
--- Audit logs policies (admin only)
-CREATE POLICY "Admins can read audit logs"
-  ON audit_logs
-  FOR SELECT
-  TO authenticated
-  USING (
-    COALESCE(
-      (auth.jwt() ->> 'user_metadata')::jsonb ->> 'role',
-      'user'
-    ) = 'admin'
-  );
+-- Profiles policies
+DO $$ 
+BEGIN
+    DROP POLICY IF EXISTS "Users can read own profile" ON public.profiles;
+    CREATE POLICY "Users can read own profile"
+      ON public.profiles FOR SELECT
+      TO authenticated
+      USING (auth.uid() = id);
+    
+    DROP POLICY IF EXISTS "Users can update own profile" ON public.profiles;
+    CREATE POLICY "Users can update own profile"
+      ON public.profiles FOR UPDATE
+      TO authenticated
+      USING (auth.uid() = id)
+      WITH CHECK (auth.uid() = id);
+    
+    DROP POLICY IF EXISTS "Users can create own profile" ON public.profiles;
+    CREATE POLICY "Users can create own profile"
+      ON public.profiles FOR INSERT
+      TO authenticated
+      WITH CHECK (auth.uid() = id);
+END $$;
 
--- Create indexes for performance
+-- 5. Indexler
 CREATE INDEX IF NOT EXISTS idx_customers_phone ON customers(phone);
 CREATE INDEX IF NOT EXISTS idx_customers_name ON customers(first_name, last_name);
 CREATE INDEX IF NOT EXISTS idx_service_records_tracking ON service_records(tracking_number);
@@ -174,7 +176,7 @@ CREATE INDEX IF NOT EXISTS idx_service_records_status ON service_records(status)
 CREATE INDEX IF NOT EXISTS idx_service_updates_service ON service_updates(service_id);
 CREATE INDEX IF NOT EXISTS idx_audit_logs_table_record ON audit_logs(table_name, record_id);
 
--- Function to update updated_at timestamp
+-- 6. Fonksiyonlar
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -183,18 +185,6 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
--- Create triggers for updated_at
-CREATE TRIGGER update_customers_updated_at
-  BEFORE UPDATE ON customers
-  FOR EACH ROW
-  EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER update_service_records_updated_at
-  BEFORE UPDATE ON service_records
-  FOR EACH ROW
-  EXECUTE FUNCTION update_updated_at_column();
-
--- Audit logging trigger function
 CREATE OR REPLACE FUNCTION audit_trigger_function()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -215,11 +205,65 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Create audit triggers
+-- Burada tabloyu şemasıyla belirtiyoruz
+CREATE OR REPLACE FUNCTION create_profile_for_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.profiles (id, first_name, last_name)
+  VALUES (NEW.id, '', '');
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- 7. Trigger'lar
+DROP TRIGGER IF EXISTS update_customers_updated_at ON customers;
+CREATE TRIGGER update_customers_updated_at
+  BEFORE UPDATE ON customers
+  FOR EACH ROW
+  EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_service_records_updated_at ON service_records;
+CREATE TRIGGER update_service_records_updated_at
+  BEFORE UPDATE ON service_records
+  FOR EACH ROW
+  EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_profiles_updated_at ON public.profiles;
+CREATE TRIGGER update_profiles_updated_at
+  BEFORE UPDATE ON public.profiles
+  FOR EACH ROW
+  EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS customers_audit_trigger ON customers;
 CREATE TRIGGER customers_audit_trigger
   AFTER INSERT OR UPDATE OR DELETE ON customers
   FOR EACH ROW EXECUTE FUNCTION audit_trigger_function();
 
+DROP TRIGGER IF EXISTS service_records_audit_trigger ON service_records;
 CREATE TRIGGER service_records_audit_trigger
   AFTER INSERT OR UPDATE OR DELETE ON service_records
   FOR EACH ROW EXECUTE FUNCTION audit_trigger_function();
+
+-- 8. auth.users trigger
+DROP TRIGGER IF EXISTS create_profile_on_signup ON auth.users;
+CREATE TRIGGER create_profile_on_signup
+  AFTER INSERT ON auth.users
+  FOR EACH ROW
+  EXECUTE FUNCTION create_profile_for_new_user();
+
+-- Audit logs insert/update policy (trigger için gerekli)
+DO $$
+BEGIN
+    DROP POLICY IF EXISTS "System can write audit logs" ON audit_logs;
+    CREATE POLICY "System can write audit logs"
+      ON audit_logs FOR INSERT
+      TO authenticated
+      WITH CHECK (true);
+
+    DROP POLICY IF EXISTS "System can update audit logs" ON audit_logs;
+    CREATE POLICY "System can update audit logs"
+      ON audit_logs FOR UPDATE
+      TO authenticated
+      USING (true)
+      WITH CHECK (true);
+END $$;

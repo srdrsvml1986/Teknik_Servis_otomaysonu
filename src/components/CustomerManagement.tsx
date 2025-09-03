@@ -73,9 +73,14 @@ export const CustomerManagement: React.FC = () => {
       
       await loadCustomers();
       resetForm();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving customer:', error);
-      showError('Kaydetme Hatası', 'Müşteri kaydedilirken hata oluştu');
+      
+      if (error.code === '23505' && error.constraint === 'customers_phone_key') {
+        showError('Kayıt Hatası', 'Bu telefon numarası zaten kayıtlıdır. Lütfen farklı bir telefon numarası deneyin.');
+      } else {
+        showError('Kaydetme Hatası', error.message || 'Müşteri kaydedilirken hata oluştu');
+      }
     } finally {
       setLoading(false);
     }

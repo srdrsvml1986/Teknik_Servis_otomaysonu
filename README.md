@@ -1,86 +1,108 @@
-# Technical Service Automation System
+# Teknik Servis Otomasyon Sistemi
 
-A comprehensive web application for managing hardware product service records with role-based access control, audit logging, and customer self-service capabilities.
+Donanım ürün servis kayıtlarını yönetmek için rol tabanlı erişim kontrolü, denetim kaydı ve müşteri self-servis özellikleri ile kapsamlı bir web uygulaması.
 
-## Features
+## Özellikler
 
-### Customer Portal (Public Access)
-- **Service Status Tracking**: Customers can query service status using personal information or tracking numbers
-- **Real-time Updates**: View current status, service center location, and detailed descriptions
-- **No Authentication Required**: Secure access using customer information validation
+### Müşteri Portalı (Herkese Açık Erişim)
+- **Servis Durumu Takibi**: Müşteriler kişisel bilgileri veya takip numarası ile servis durumunu sorgulayabilir
+- **Gerçek Zamanlı Güncellemeler**: Mevcut durumu, servis merkezi konumunu ve detaylı açıklamaları görüntüleyebilir
+- **Kimlik Doğrulama Gerektirmez**: Müşteri bilgileri doğrulaması ile güvenli erişim
 
-### Management Dashboard (Authenticated Access)
-- **Role-Based Access Control**: User and Admin roles with different permission levels
-- **Customer Management**: Complete CRUD operations with Excel import/export functionality
-- **Service Record Management**: Track service requests from creation to completion
-- **Real-time Status Updates**: Update service status with automatic audit logging
+### Yönetim Paneli (Kimlik Doğrulamalı Erişim)
+- **Rol Tabanlı Erişim Kontrolü**: Kullanıcı ve Yönetici rollerine göre farklı yetkiler
+- **Müşteri Yönetimi**: Excel içe/dışa aktarma ile tam CRUD işlemleri
+- **Servis Kayıt Yönetimi**: Servis taleplerini oluşturma ve tamamlama süreçleri
+- **Gerçek Zamanlı Durum Güncellemeleri**: Servis durumunu güncelleme ve otomatik denetim kaydı
 
-### Advanced Features
-- **Comprehensive Audit Logging**: Track all database operations with user attribution
-- **Excel Integration**: Import customer data and export comprehensive reports
-- **Advanced Reporting**: Staff performance metrics, service center analytics, and completion rates
-- **Responsive Design**: Optimized for desktop workflows and mobile access
+### Gelişmiş Özellikler
+- **Kapsamlı Denetim Kaydı**: Tüm veritabanı işlemlerini kullanıcı bazlı izleme
+- **Excel Entegrasyonu**: Müşteri verilerini içe aktarma ve raporları dışa aktarma
+- **Gelişmiş Raporlama**: Personel performans metrikleri, servis merkezi analitikleri ve tamamlama oranları
+- **Duyarlı Tasarım**: Masaüstü ve mobil erişime uygun
 
-## Technology Stack
+## Teknoloji Yığını
 
 - **Frontend**: React 18 + TypeScript + Tailwind CSS
 - **Backend**: Supabase (PostgreSQL + Authentication + Real-time)
 - **Build Tool**: Vite
-- **UI Components**: Custom components with Lucide React icons
-- **Data Processing**: XLSX for Excel import/export functionality
+- **UI Bileşenleri**: Lucide React ikonları ile özel bileşenler
+- **Veri İşleme**: Excel içe/dışa aktarma için XLSX
 
-## Database Schema
+## Veritabanı Şeması
 
-### Core Tables
-- **customers**: Customer information and contact details
-- **service_records**: Service requests with product and status tracking
-- **service_updates**: Historical tracking of service changes
-- **audit_logs**: Comprehensive audit trail for all database operations
+### Temel Tablolar
+- **customers**: Müşteri bilgileri ve iletişim detayları
+- **service_records**: Ürün ve durum takibi ile servis talepleri
+- **service_updates**: Servis değişikliklerinin geçmiş kaydı
+- **audit_logs**: Tüm veritabanı işlemlerinin denetim izi
 
-### Security Features
-- **Row Level Security (RLS)**: Implemented on all tables
-- **Role-based Policies**: Admin and user access controls
-- **Public Query Access**: Secure customer portal without authentication
-- **Automatic Audit Logging**: Trigger-based logging for all CRUD operations
+### Güvenlik Özellikleri
+- **Row Level Security (RLS)**: Tüm tablolarda uygulanmıştır
+- **Rol Tabanlı Politikalar**: Yönetici ve kullanıcı erişim kontrolleri
+- **Herkese Açık Sorgu Erişimi**: Kimlik doğrulama olmadan güvenli müşteri portalı
+- **Otomatik Denetim Kaydı**: Tüm CRUD işlemleri için tetikleyici tabanlı kayıt
 
-## User Roles
+## Kullanıcı Rolleri
 
-### Customer (No Authentication)
-- Query service status by personal information or tracking number
-- View service history and current status
+### Müşteri (Kimlik Doğrulama Yok)
+- Kişisel bilgi veya takip numarası ile servis durumu sorgulama
+- Servis geçmişini ve mevcut durumunu görüntüleme
 
-### Staff User (Authenticated)
-- Manage customer records
-- Create and update service records
-- Import customer data via Excel
-- View basic reporting
+### Personel Kullanıcı (Kimlik Doğrulamalı)
+- Müşteri kayıtlarını yönetme
+- Servis kayıtlarını oluşturma ve güncelleme
+- Excel ile müşteri verisi içe aktarma
+- Temel raporları görüntüleme
 
-### Administrator (Authenticated)
-- All user permissions plus:
-- Access audit logs
-- Generate comprehensive reports
-- Export detailed analytics
-- View staff performance metrics
+### Yönetici (Kimlik Doğrulamalı)
+- Tüm kullanıcı yetkilerine ek olarak:
+- Denetim kayıtlarına erişim
+- Kapsamlı raporlar oluşturma
+- Detaylı analitikleri dışa aktarma
+- Personel performans metriklerini görüntüleme
 
-## Getting Started
+## Başlarken
 
-1. **Connect to Supabase**: Click the "Connect to Supabase" button to set up your database
-2. **Create Admin User**: Sign up the first user and manually set their role to 'admin' in Supabase Dashboard
-3. **Import Customer Data**: Use the Excel import feature to bulk load customer information
-4. **Start Processing**: Begin creating service records and tracking progress
+1. **Supabase’e Bağlanın**: Veritabanınızı kurmak için “Connect to Supabase” butonuna tıklayın
+2. **Yönetici Kullanıcı Oluşturun**: İlk kullanıcıyı kaydedin ve rolünü Supabase Dashboard üzerinden manuel olarak `admin` yapın
+3. **Müşteri Verilerini İçe Aktarın**: Excel içe aktarma özelliği ile müşteri bilgilerini yükleyin
+4. **Servis Süreçlerini Başlatın**: Servis kayıtlarını oluşturmaya ve takip etmeye başlayın
 
-## Key Metrics & Performance
+### Yönetici Rolünü Ayarlama
+Admin kullanıcısı oluşturulduktan sonra Supabase SQL Editör’de aşağıdaki kodu bir kez çalıştırın:
+```sql
+update auth.users
+set raw_app_meta_data = jsonb_set(
+    coalesce(raw_app_meta_data, '{}'::jsonb),
+    '{role}',
+    '"admin"'
+)
+where email = 'admin@admin.tr';
+```
 
-- **Query Accuracy**: >95% for customer portal searches
-- **Audit Coverage**: 100% of all database operations
-- **Excel Import Success**: >98% for properly formatted files
-- **Real-time Updates**: Automatic status synchronization across all users
+### Manuel Migration İşlemi
+Uygulamayı ilk defa çalıştıracaksanız, komut satırınızda şu adımları izleyin:
+postgresql connection stringinizi supabaseden alabilirsiniz.
+```bash
+npx supabase --help
+npx supabase login
+npx supabase migration up --db-url  "postgresql://postgres:[YOUR-PASSWORD]@db.gotkxngcxggihlagsqv.supabase.co:5432/postgres"
+```
 
-## Security Considerations
+## Temel Metrikler ve Performans
 
-- **Data Privacy**: Customer information protected by RLS policies
-- **Access Control**: Strict role-based permissions at database level
-- **Audit Trail**: Complete logging of all sensitive operations
-- **Secure Authentication**: Supabase managed authentication with email/password
+- **Sorgu Doğruluğu**: %95+ müşteri portalı sorguları için
+- **Denetim Kapsamı**: %100 tüm veritabanı işlemleri için
+- **Excel İçe Aktarma Başarı Oranı**: %98+ doğru formatlı dosyalar için
+- **Gerçek Zamanlı Güncellemeler**: Tüm kullanıcılar arasında otomatik senkronizasyon
 
-This system provides a production-ready solution for technical service management with enterprise-level security, comprehensive tracking, and excellent user experience across all user types.
+## Güvenlik Hususları
+
+- **Veri Gizliliği**: RLS politikaları ile müşteri bilgileri korunur
+- **Erişim Kontrolü**: Veritabanı seviyesinde sıkı rol tabanlı yetkiler
+- **Denetim Kaydı**: Tüm hassas işlemlerin eksiksiz kaydı
+- **Güvenli Kimlik Doğrulama**: Supabase e-posta/şifre tabanlı kimlik doğrulama yönetimi
+
+Bu sistem, teknik servis yönetimi için kurumsal seviyede güvenlik, kapsamlı takip ve tüm kullanıcı tipleri için üstün kullanıcı deneyimi sağlayan üretime hazır bir çözümdür.
+
