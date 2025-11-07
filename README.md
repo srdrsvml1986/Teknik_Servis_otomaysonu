@@ -87,6 +87,7 @@ postgresql connection stringinizi supabaseden alabilirsiniz.
 ```bash
 npx supabase --help
 npx supabase login
+npx supabase link
 npx supabase migration up --db-url  "postgresql://postgres:[YOUR-PASSWORD]@db.gotkxngcxggihlagsqv.supabase.co:5432/postgres"
 ```
 
