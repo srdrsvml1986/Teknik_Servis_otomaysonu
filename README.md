@@ -118,3 +118,6 @@ npx supabase functions deploy update-user
 
 Bu sistem, teknik servis yönetimi için kurumsal seviyede güvenlik, kapsamlı takip ve tüm kullanıcı tipleri için üstün kullanıcı deneyimi sağlayan üretime hazır bir çözümdür.
 
+demo:
+email: bilgi@serdarsevimli.tr
+password: 2222
